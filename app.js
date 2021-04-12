@@ -1,16 +1,20 @@
 const path = require('path');
 const AutoLoad = require('fastify-autoload');
-// const fastifyMongodb = require('fastify-mongodb');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 module.exports = async function (fastify, opts) {
-  // eslint-disable-next-line
-  fastify.register(require('fastify-mongodb'), {
-    // force to close the mongodb connection when app stopped
-    // the default value is false
-    forceClose: true,
-    url: process.env.MONGODB_URL,
-  });
+  // connected fastify to mongoose
+  try {
+    const db = await mongoose.connect(process.env.MONGODB_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    fastify.decorate('mongo', db);
+  } catch (e) {
+    console.error(e);
+  }
 
   // Do not touch the following lines
 

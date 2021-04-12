@@ -81,7 +81,7 @@ const workoutChannels = [
       const videos = [...document.querySelectorAll('#dismissible')];
 
       const data = videos.map((video) => {
-        const src = video.querySelector('#img')?.src;
+        const imageLink = video.querySelector('#img')?.src;
 
         const videoTitle = video.querySelector('#video-title');
 
@@ -121,7 +121,7 @@ const workoutChannels = [
         return {
           channelName,
           subCount,
-          src,
+          imageLink,
           href,
           title,
           duration: Number(duration),
