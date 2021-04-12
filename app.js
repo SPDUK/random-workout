@@ -1,6 +1,7 @@
 const path = require('path');
 const AutoLoad = require('fastify-autoload');
 const mongoose = require('mongoose');
+// const scrapeWorkouts = require('./scraper');
 require('dotenv').config();
 
 module.exports = async function (fastify, opts) {
@@ -9,9 +10,12 @@ module.exports = async function (fastify, opts) {
     const db = await mongoose.connect(process.env.MONGODB_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      useCreateIndex: true,
     });
 
     fastify.decorate('mongo', db);
+
+    // setTimeout(() => scrapeWorkouts(), 5000);
   } catch (e) {
     console.error(e);
   }
