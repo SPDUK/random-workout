@@ -29,10 +29,7 @@ module.exports = async function (fastify, opts) {
 
       const maxLimit = limit > 100 ? 100 : Number(limit);
 
-      // console.log(req.params.page, req.query);
       const validPage = page <= 0 ? 0 : page - 1;
-
-      console.log({ page, query: req.query.query });
 
       const skip = validPage * limit;
 
