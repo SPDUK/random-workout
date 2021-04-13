@@ -7,10 +7,16 @@ const workoutSchema = new Schema({
   subCount: { type: String, required: true },
   imageLink: { type: String },
   href: { type: String, required: true, unique: true },
-  title: { type: String, required: true, unique: true, index: true },
+  title: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   description: { type: String },
   duration: { type: Number, required: true },
 });
+
+workoutSchema.index({ title: 'text' });
 
 const Workout = mongoose.model('workout', workoutSchema);
 

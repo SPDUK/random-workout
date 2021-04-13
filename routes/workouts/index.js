@@ -15,9 +15,34 @@ module.exports = async function (fastify, opts) {
 
   fastify.get('/', async (req, reply) => {
     try {
-      const workout = await Workout.find();
+      const workouts = await Workout.find();
 
-      return workout;
+      return workouts;
+    } catch (err) {
+      throw boom.boomify(err);
+    }
+  });
+
+  fastify.get('/search', async (req, reply) => {
+    try {
+      const { page, search, limit } = req.query;
+
+      const maxLimit = limit > 100 ? 100 : Number(limit);
+
+      // console.log(req.params.page, req.query);
+      const validPage = page <= 0 ? 0 : page - 1;
+
+      console.log({ page, query: req.query });
+
+      const skip = validPage * limit;
+
+      const results = await Workout.find({ $text: { $search: search } })
+        .select('title')
+        .sort({ _id: -1 }) // sorts by generation time of id
+        .limit(maxLimit)
+        .skip(skip);
+
+      return results;
     } catch (err) {
       throw boom.boomify(err);
     }
