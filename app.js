@@ -1,7 +1,10 @@
 const path = require('path');
 const AutoLoad = require('fastify-autoload');
 const mongoose = require('mongoose');
-// const scrapeWorkouts = require('./scraper');
+
+// runs scraper job automatically if required
+require('./scraper');
+
 require('dotenv').config();
 
 module.exports = async function (fastify, opts) {
