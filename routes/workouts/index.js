@@ -25,18 +25,18 @@ module.exports = async function (fastify, opts) {
 
   fastify.get('/search', async (req, reply) => {
     try {
-      const { page, search, limit } = req.query;
+      const { page, query, limit } = req.query;
 
       const maxLimit = limit > 100 ? 100 : Number(limit);
 
       // console.log(req.params.page, req.query);
       const validPage = page <= 0 ? 0 : page - 1;
 
-      console.log({ page, query: req.query });
+      console.log({ page, query: req.query.query });
 
       const skip = validPage * limit;
 
-      const results = await Workout.find({ $text: { $search: search } })
+      const results = await Workout.find({ $text: { $search: query } })
         .select('title')
         .sort({ _id: -1 }) // sorts by generation time of id
         .limit(maxLimit)
