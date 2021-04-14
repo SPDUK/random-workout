@@ -66,9 +66,11 @@ async function goToPageAndLoadAllVideoData(page, channel) {
 
     // if we have any unloaded images we missed -> find them and scroll to them so they load in the image
     const unloadedImages = document.querySelectorAll('.yt-img-shadow');
-    for await (const img of unloadedImages) {
-      img.scrollIntoView();
-      await wait(300);
+    for (const img of unloadedImages) {
+      if (!img.height) {
+        img.scrollIntoView();
+        await wait(300);
+      }
     }
   });
 }
@@ -153,16 +155,11 @@ async function scrapeWorkouts() {
     await page.setViewport(viewport);
 
     for (const channel of workoutChannels) {
-      console.log({ channel });
       // load in videos on the page so it's scrapable
       await goToPageAndLoadAllVideoData(page, channel);
 
       // scrape the data now it's loaded
       const allWorkoutDataForChannel = await getWorkoutDataFromPage(page);
-
-      console.log({ allWorkoutDataForChannel });
-
-      console.log('got this far');
 
       // turn to array, make sure we filter out any broken scraped data
       const allWorkoutsList = JSON.parse(allWorkoutDataForChannel);
