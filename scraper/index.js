@@ -6,23 +6,16 @@ const puppeteer = require('puppeteer');
 const { allObjectKeysHaveValues } = require('../utils');
 
 const Workout = require('../models/Workout');
+const channels = require('../utils/channels');
+const generateCategoriesForWorkoutVideo = require('../utils/generateCategoriesForWorkoutVideo');
 
-const workoutChannels = [
-  // already have these for now in db
-  // 'https://www.youtube.com/c/athleanx/search?query=workout',
-  // 'https://www.youtube.com/c/BullyJuice/search?query=workout',
-  // 'https://www.youtube.com/c/TheBodyCoachTV/search?query=workout',
-  // 'https://www.youtube.com/c/TIFFxDAN/search?query=workout',
-  // 'https://www.youtube.com/c/TheZeusFitness/search?query=workout',
-  // 'https://www.youtube.com/c/CarolineGirvan/search?query=workout',
-  // 'https://www.youtube.com/c/growingannanas/search?query=workout',
-  // 'https://www.youtube.com/c/RachelGulottaFitness/search?query=workout',
-  // 'https://www.youtube.com/c/ACHVPEAK/search?query=workout',
-  // 'https://www.youtube.com/c/FunkRoberts/search?query=workout',
-  // 'https://www.youtube.com/c/PamelaRf1/search?query=workout',
-  // not done
-  'https://www.youtube.com/c/OFFICIALTHENXSTUDIOS/search?query=workout',
-];
+// generate urls from our channels list in utils folder
+const baseChannelUrl = 'https://www.youtube.com/channel/';
+const workoutQuery = '/search?query=workout';
+
+const createWorkoutUrl = (channel) =>
+  `${baseChannelUrl}${channel}${workoutQuery}`;
+const workoutChannels = channels.map(createWorkoutUrl);
 
 async function goToPageAndLoadAllVideoData(page, channel) {
   await page.goto(channel, { waitUntil: 'load' });
@@ -84,7 +77,7 @@ async function getWorkoutDataFromPage(page) {
       document
         .querySelector('#subscriber-count')
         ?.innerText.split('subscribers')?.[0]
-        ?.trim() || '';
+        ?.trim() || 'N/A';
 
     const videos = [...document.querySelectorAll('#dismissible')];
 
@@ -145,6 +138,15 @@ async function getWorkoutDataFromPage(page) {
   return scrapedData;
 }
 
+function addCategoriesToWorkout(workout) {
+  const categories = generateCategoriesForWorkoutVideo(
+    workout.title,
+    workout.description
+  );
+
+  return { ...workout, categories };
+}
+
 async function scrapeWorkouts() {
   const browser = await puppeteer.launch({ headless: false });
 
@@ -163,13 +165,26 @@ async function scrapeWorkouts() {
 
       // turn to array, make sure we filter out any broken scraped data
       const allWorkoutsList = JSON.parse(allWorkoutDataForChannel);
+
+      console.log({ allWorkoutsList });
       const validWorkouts = allWorkoutsList.filter(allObjectKeysHaveValues);
+
+      console.log({ validWorkouts });
+
+      // adds categories to the workout by generating it by matching on close words we find
+      // e.g dumbell curls 10 mins workout will add to bicep category as dumbell curls are a bicep workout
+      const validWorkoutsWithCategories = validWorkouts.map(
+        addCategoriesToWorkout
+      );
+
+      console.log({ validWorkoutsWithCategories });
 
       // insert our workouts for this channel into the db
       // gets awaited when awaiting acc
-      await Workout.insertMany(validWorkouts, {
+      const result = await Workout.insertMany(validWorkoutsWithCategories, {
         ordered: false,
       });
+      console.log({ result });
     }
 
     await browser.close();

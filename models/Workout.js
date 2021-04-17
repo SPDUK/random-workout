@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 
 const workoutSchema = new Schema({
   channelName: { type: String },
-  subCount: { type: String, required: true },
+  subCount: { type: String },
   imageLink: { type: String },
   href: { type: String, required: true, unique: true },
   title: {
@@ -14,6 +14,7 @@ const workoutSchema = new Schema({
   },
   description: { type: String },
   duration: { type: Number, required: true },
+  categories: { type: [String] },
 });
 
 workoutSchema.index({ title: 'text' });
