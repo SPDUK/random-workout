@@ -1,4 +1,5 @@
 const Fuse = require('fuse.js');
+const { uniq } = require('ramda');
 const commonWords = require('./commonWords');
 const workoutCategories = require('./workoutCategories');
 
@@ -10,6 +11,9 @@ const options = {
 const fuse = new Fuse(workoutCategories, options);
 
 function generateCategoriesForWorkoutVideo(title, description) {
+  // just incase something goes very wrong
+  if (!title || !description) return [];
+
   const workoutWords = `${title} ${description}`
     .replace(/[^a-zA-Z\s]/gi, ' ')
     .split(' ')
@@ -17,29 +21,29 @@ function generateCategoriesForWorkoutVideo(title, description) {
     .map((x) => x.toLowerCase())
     .filter((s) => !commonWords.has(s));
 
-  const result = workoutWords.reduce((acc, cur) => {
+  const result = [];
+  for (const word of workoutWords) {
     // destructure top result
-    const [search] = fuse.search(cur);
-    if (!search) return acc;
+    const [search] = fuse.search(word);
 
-    // asume the match is not good enough
-    if (search.score > 0.3) return acc;
+    // assume the match is good
+    if (search?.score < 0.1) {
+      const tags = search?.item?.tags;
+      // sanity check for tags actually existing
+      if (tags) {
+        for (const tag of tags) {
+          result.push({ tag, score: search.score });
+        }
+      }
+    }
+  }
 
-    console.log(search);
-
-    const tags = search?.item?.tags;
-    // sanity check for tags actually existing
-    if (!tags) return acc;
-
-    const newAccSet = new Set(acc);
-
-    tags.forEach((tag) => newAccSet.add(tag));
-
-    return newAccSet;
-  }, new Set());
+  const onlyThreeClosestResults = uniq(
+    [...result].sort((a, b) => a.score - b.score).map(({ tag }) => tag)
+  );
 
   // return as array for mongodb
-  return [...result];
+  return onlyThreeClosestResults;
 }
 
 module.exports = generateCategoriesForWorkoutVideo;

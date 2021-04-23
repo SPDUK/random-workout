@@ -3,6 +3,14 @@ const channels = require('./channels');
 
 const commonWords = new Set(
   [
+    'try',
+    'is',
+    'are',
+    'win',
+    'lose',
+    'fat',
+    'skinny',
+    'weight',
     'the',
     'be',
     'to',

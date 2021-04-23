@@ -1,4 +1,9 @@
 const workoutCategories = [
+  { title: 'full body', tags: ['full body'] },
+  { title: 'hiit', tags: ['HIIT'] },
+  { title: 'bodyweight', tags: ['bodyweight'] },
+  { title: 'cardio', tags: ['cardio'] },
+  { title: 'calisthenics', tags: ['calisthenics'] },
   { title: 'barbell curl', tags: ['biceps'] },
   { title: 'dumbbell curl', tags: ['biceps'] },
   { title: 'hammer curl', tags: ['biceps'] },

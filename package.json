@@ -27,7 +27,8 @@
     "fastify-sensible": "^3.1.0",
     "fuse.js": "^6.4.6",
     "mongoose": "^5.12.3",
-    "puppeteer": "^8.0.0"
+    "puppeteer": "^8.0.0",
+    "ramda": "^0.27.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
